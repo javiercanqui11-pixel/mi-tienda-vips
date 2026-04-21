@@ -1,0 +1,143 @@
+[11:30 a. m., 21/4/2026] Javier: <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Ventas - Acceso Restringido</title>
+    <style>
+        :root { --primary: #2c3e50; --success: #27ae60; --dark: #1a1a1a; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; }
+        
+        /* Pantalla de Login */
+        #login-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--dark); display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 2000; color: white;
+        }
+        .login-box { background: #333; padding: 30px; border-radius: 15px; text-alig…
+[11:52 a. m., 21/4/2026] Javier: <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Ventas Pro - Editable</title>
+    <style>
+        :root { --primary: #2c3e50; --success: #27ae60; --info: #3498db; --dark: #1a1a1a; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding-bottom: 50px; }
+        
+        /* Login */
+        #login-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--dark); display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 2000; color: white;
+        }
+        .login-box { background: #333; padding: 30px; border-radius: 15px; text-align: center; }
+
+        /* Interfaz */
+        .hidden { display: none !important; }
+        .header { background: white; padding: 15px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .container { padding: 15px; max-width: 1200px; margin: auto; }
+        .search-bar { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; margin: 10px 0; box-sizing: border-box; }
+
+        /* Grid y Cards */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); position: relative; }
+        .card img { width: 100%; height: 180px; object-fit: cover; background: #eee; }
+        .card-body { padding: 15px; }
+        
+        /* Botones */
+        button { cursor: pointer; border: none; border-radius: 6px; font-weight: bold; transition: 0.3s; }
+        .btn-main { background: var(--primary); color: white; padding: 10px; width: 100%; margin-top: 5px; }
+        .btn-edit { background: var(--info); color: white; padding: 5px 10px; font-size: 0.8em; margin-bottom: 10px; }
+        .btn-add-prod { background: var(--success); color: white; padding: 10px 20px; }
+
+        /* Modales */
+        .modal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: white; padding: 20px; border-radius: 12px; width: 90%; max-width: 400px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5); z-index: 3000;
+        }
+        .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:2999; }
+    </style>
+</head>
+<body>
+
+<div id="login-screen">
+    <div class="login-box">
+        <h2>🔒 Acceso al Sistema</h2>
+        <input type="password" id="passInput" class="search-bar" style="width:200px" placeholder="Contraseña">
+        <button class="btn-main" onclick="checkPass()">INGRESAR</button>
+    </div>
+</div>
+
+<div id="main-content" class="hidden">
+    <div class="header">
+        <div class="container">
+            <input type="text" id="search" class="search-bar" placeholder="🔍 Buscar por nombre o descripción..." onkeyup="render()">
+            <button class="btn-add-prod" onclick="openEditModal(null)">+ Nuevo Producto</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="catalog" class="grid"></div>
+        <button class="btn-main" style="background:#e67e22; margin-top:30px;" onclick="downloadReport()">📥 Descargar Reporte de Ventas</button>
+    </div>
+</div>
+
+<div id="modal-overlay" class="overlay hidden" onclick="closeModals()"></div>
+<div id="sale-modal" class="modal hidden">
+    <h3>Registrar Venta</h3>
+    <input type="text" id="v-name" class="search-bar" placeholder="Nombre del Cliente">
+    <input type="text" id="v-phone" class="search-bar" placeholder="Teléfono">
+    <input type="number" id="v-price" class="search-bar" placeholder="Monto Final (Bs)">
+    <select id="v-method" class="search-bar">
+        <option value="Efectivo">Efectivo</option>
+        <option value="QR">QR</option>
+        <option value="Préstamo">A Préstamo</option>
+    </select>
+    <button class="btn-main" onclick="confirmSale()">FINALIZAR VENTA</button>
+</div>
+
+<div id="edit-modal" class="modal hidden">
+    <h3 id="edit-title">Producto</h3>
+    <input type="text" id="e-name" class="search-bar" placeholder="Nombre del producto">
+    <input type="text" id="e-desc" class="search-bar" placeholder="Descripción corta">
+    <input type="number" id="e-price" class="search-bar" placeholder="Precio (Bs)">
+    <input type="number" id="e-stock" class="search-bar" placeholder="Unidades en Stock">
+    <input type="text" id="e-img" class="search-bar" placeholder="Nombre de imagen (ej: foto1.jpg)">
+    <button class="btn-main" style="background:var(--success)" onclick="saveProduct()">GUARDAR CAMBIOS</button>
+</div>
+
+<script>
+    function checkPass() {
+        if(document.getElementById('passInput').value === "1234") {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('main-content').classList.remove('hidden');
+            render();
+        } else { alert("Contraseña incorrecta"); }
+    }
+
+    let inventario = JSON.parse(localStorage.getItem('inventario')) || [
+        { id: 1, nombre: "Router MikroTik", precio: 800, stock: 5, img: "router.jpg", desc: "Dual Band" }
+    ];
+    let ventas = JSON.parse(localStorage.getItem('ventas')) || [];
+    let currentId = null;
+
+    function render() {
+        const query = document.getElementById('search').value.toLowerCase();
+        const catalog = document.getElementById('catalog');
+        catalog.innerHTML = "";
+
+        inventario.filter(p => p.nombre.toLowerCase().includes(query) || p.desc.toLowerCase().includes(query)).forEach(p => {
+            catalog.innerHTML += `
+                <div class="card">
+                    <img src="${p.img}" onerror="this.src='https://via.placeholder.com/300?text=Sin+Imagen'">
+                    <div class="card-body">
+                        <button class="btn-edit" onclick="openEditModal(${p.id})">⚙️ Editar / Stock</button>
+                        <h3 style="margin:0">${p.nombre}</h3>
+                        <p style="color:#666; font-size:0.85em; margin:5px 0;">${p.desc}</p>
+                        <div style="font-size:1.3em; color:var(--success); font-weight:bold">Bs. ${p.precio}</div>
+                        <p style="font-weight:bold; color:${p.stock <= 0 ? 'red' : 'black'}">Stock: ${p.stock} unids.</p>
+                        <button class="btn-main" onclick="openSaleModal(${p.id}, ${p.precio})" ${p.stock <= 0 ? 'disabled' : ''}>
+                            ${p.stock <= 0 ? 'SIN
+                            
